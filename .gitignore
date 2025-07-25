@@ -1,24 +1,9 @@
-.venv/
+.venv
+.env
+# Ignore Python virtual environment
+venv/
+# Ignore environment variable files
+.env
+# Ignore Python cache files
 __pycache__/
 *.pyc
-*.pyo
-*.pyd
-*.db
-*.sqlite3
-*.log
-*.tmp
-*.bak
-*.swp
-*.swo
-*.DS_Store
-*.env
-*.venv/
-*.egg-info/
-dist/
-.env
-# Python
-*.py[cod]
-# Python
-*.venv/
-# environments
-.env/
