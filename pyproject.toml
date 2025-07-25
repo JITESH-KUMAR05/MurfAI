@@ -5,13 +5,21 @@ description = "Multi-agent AI assistant with Murf voice integration"
 authors = [{name = "Jitesh", email = "your.email@example.com"}]
 license = {text = "MIT"}
 readme = "README.md"
-requires-python = ">=3.11"
+requires-python = ">=3.10,<3.13"
 
 dependencies = [
     "requests>=2.31.0",
     "PyQt6>=6.6.0",
     "python-dotenv>=1.0.0",
     "httpx>=0.25.0",
+    "speechrecognition>=3.14.3",
+    "pydantic>=2.11.7",
+    "pydub>=0.25.1",
+    "qasync>=0.27.1",
+    "pyaudio>=0.2.14",
+    "murf>=2.0.0",
+    "pygame>=2.5.0",
+    "numpy>=1.24.0",
 ]
 
 [build-system]

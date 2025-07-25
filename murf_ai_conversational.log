@@ -1,0 +1,45 @@
+2025-07-25 23:45:28,449 - INFO - ✅ Murf client initialized successfully
+2025-07-25 23:45:28,449 - INFO - ✅ Loaded 15 demo voices including Indian voices
+2025-07-25 23:45:28,468 - INFO - ✅ Audio player initialized with pygame
+2025-07-25 23:45:28,511 - INFO - 🚀 MurfAI Conversational Assistant started!
+2025-07-25 23:46:05,466 - INFO - HTTP Request: POST https://models.inference.ai.azure.com/chat/completions "HTTP/1.1 200 OK"
+2025-07-25 23:46:05,467 - INFO - 🎵 Generating speech with voice en-US-terrell: 'Hello! I'm doing great, thanks for asking! I'm exc...'
+2025-07-25 23:46:07,717 - INFO - HTTP Request: POST https://api.murf.ai/v1/speech/generate?origin=python_sdk_2.0.1 "HTTP/1.1 200 OK"
+2025-07-25 23:46:07,720 - INFO - 📥 Downloading audio from: https://murf.ai/user-upload/one-day-temp/697be10a-b2ef-4348-823c-98516b231f1c.wav?response-cache-control=max-age%3D604801&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Date=20250725T000000Z&X-Amz-SignedHeaders=host&X-Amz-Expires=259200&X-Amz-Credential=AKIA27M5532DYKBCJICE%2F20250725%2Fus-east-2%2Fs3%2Faws4_request&X-Amz-Signature=629ff7ffec55c55289c117f5991982e25a503c9adaf36aae1c64970dd5f1e638
+2025-07-25 23:46:09,339 - INFO - ✅ Successfully generated and downloaded speech with Murf API
+2025-07-25 23:46:22,725 - INFO - HTTP Request: POST https://models.inference.ai.azure.com/chat/completions "HTTP/1.1 200 OK"
+2025-07-25 23:46:22,726 - INFO - 🎵 Generating speech with voice en-US-terrell: 'Absolutely! I’m powered by advanced AI technology,...'
+2025-07-25 23:46:25,019 - INFO - HTTP Request: POST https://api.murf.ai/v1/speech/generate?origin=python_sdk_2.0.1 "HTTP/1.1 200 OK"
+2025-07-25 23:46:25,023 - INFO - 📥 Downloading audio from: https://murf.ai/user-upload/one-day-temp/2fbc5832-e8c6-440a-92d8-78b05c941eb8.wav?response-cache-control=max-age%3D604801&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Date=20250725T000000Z&X-Amz-SignedHeaders=host&X-Amz-Expires=259200&X-Amz-Credential=AKIA27M5532DYKBCJICE%2F20250725%2Fus-east-2%2Fs3%2Faws4_request&X-Amz-Signature=8347e57d6221b99a916fe6bb0ebb47a7ad8c32f2249763b5b5f4b8f5fd0fee7e
+2025-07-25 23:46:27,008 - INFO - ✅ Successfully generated and downloaded speech with Murf API
+2025-07-25 23:47:44,173 - INFO - 🎵 Generating speech with voice en-IN-kabir: 'Hello! This is a test of the Kabir voice. How do I...'
+2025-07-25 23:47:44,977 - INFO - HTTP Request: POST https://api.murf.ai/v1/speech/generate?origin=python_sdk_2.0.1 "HTTP/1.1 400 Bad Request"
+2025-07-25 23:47:44,978 - ERROR - ❌ Error in text_to_speech: status_code: 400, body: {'errorCode': 400, 'errorMessage': 'Invalid voice_id en-IN-kabir. Use the GET /v1/speech/voices endpoint to retrieve the full list of supported voices, or visit: https://murf.ai/api/docs/voices-styles/voice-library, to view the voice library in our API docs.'}
+2025-07-25 23:47:44,978 - ERROR - Exception details: BadRequestError: status_code: 400, body: {'errorCode': 400, 'errorMessage': 'Invalid voice_id en-IN-kabir. Use the GET /v1/speech/voices endpoint to retrieve the full list of supported voices, or visit: https://murf.ai/api/docs/voices-styles/voice-library, to view the voice library in our API docs.'}
+2025-07-25 23:47:51,052 - INFO - 🎵 Generating speech with voice en-IN-priya: 'Hello! This is a test of the Priya voice. How do I...'
+2025-07-25 23:47:53,405 - INFO - HTTP Request: POST https://api.murf.ai/v1/speech/generate?origin=python_sdk_2.0.1 "HTTP/1.1 200 OK"
+2025-07-25 23:47:53,407 - INFO - 📥 Downloading audio from: https://murf.ai/user-upload/one-day-temp/ce85e771-6535-4a69-bda7-36ba0f62d12a.wav?response-cache-control=max-age%3D604801&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Date=20250725T000000Z&X-Amz-SignedHeaders=host&X-Amz-Expires=259200&X-Amz-Credential=AKIA27M5532DYKBCJICE%2F20250725%2Fus-east-2%2Fs3%2Faws4_request&X-Amz-Signature=0fd7e4f42c0902989463c1f80aae56d631d1ed0953cf2a700aa43fa9010162f7
+2025-07-25 23:47:54,962 - INFO - ✅ Successfully generated and downloaded speech with Murf API
+2025-07-25 23:48:03,821 - INFO - 🎵 Generating speech with voice hi-IN-aditi: 'Hello! This is a test of the Aditi voice. How do I...'
+2025-07-25 23:48:04,573 - INFO - HTTP Request: POST https://api.murf.ai/v1/speech/generate?origin=python_sdk_2.0.1 "HTTP/1.1 400 Bad Request"
+2025-07-25 23:48:04,573 - ERROR - ❌ Error in text_to_speech: status_code: 400, body: {'errorCode': 400, 'errorMessage': 'Invalid voice_id hi-IN-aditi. Use the GET /v1/speech/voices endpoint to retrieve the full list of supported voices, or visit: https://murf.ai/api/docs/voices-styles/voice-library, to view the voice library in our API docs.'}
+2025-07-25 23:48:04,574 - ERROR - Exception details: BadRequestError: status_code: 400, body: {'errorCode': 400, 'errorMessage': 'Invalid voice_id hi-IN-aditi. Use the GET /v1/speech/voices endpoint to retrieve the full list of supported voices, or visit: https://murf.ai/api/docs/voices-styles/voice-library, to view the voice library in our API docs.'}
+2025-07-25 23:48:13,369 - INFO - HTTP Request: POST https://models.inference.ai.azure.com/chat/completions "HTTP/1.1 200 OK"
+2025-07-25 23:48:13,371 - INFO - 🎵 Generating speech with voice hi-IN-aditi: 'Hello again! I'm still doing great, thanks! I'm he...'
+2025-07-25 23:48:14,100 - INFO - HTTP Request: POST https://api.murf.ai/v1/speech/generate?origin=python_sdk_2.0.1 "HTTP/1.1 400 Bad Request"
+2025-07-25 23:48:14,101 - ERROR - ❌ Error in text_to_speech: status_code: 400, body: {'errorMessage': 'Invalid voice_id hi-IN-aditi. Use the GET /v1/speech/voices endpoint to retrieve the full list of supported voices, or visit: https://murf.ai/api/docs/voices-styles/voice-library, to view the voice library in our API docs.', 'errorCode': 400}
+2025-07-25 23:48:14,101 - ERROR - Exception details: BadRequestError: status_code: 400, body: {'errorMessage': 'Invalid voice_id hi-IN-aditi. Use the GET /v1/speech/voices endpoint to retrieve the full list of supported voices, or visit: https://murf.ai/api/docs/voices-styles/voice-library, to view the voice library in our API docs.', 'errorCode': 400}
+2025-07-25 23:48:22,092 - INFO - 🎵 Generating speech with voice en-IN-sneha: 'Hello! This is a test of the Sneha voice. How do I...'
+2025-07-25 23:48:22,823 - INFO - HTTP Request: POST https://api.murf.ai/v1/speech/generate?origin=python_sdk_2.0.1 "HTTP/1.1 400 Bad Request"
+2025-07-25 23:48:22,823 - ERROR - ❌ Error in text_to_speech: status_code: 400, body: {'errorMessage': 'Invalid voice_id en-IN-sneha. Use the GET /v1/speech/voices endpoint to retrieve the full list of supported voices, or visit: https://murf.ai/api/docs/voices-styles/voice-library, to view the voice library in our API docs.', 'errorCode': 400}
+2025-07-25 23:48:22,823 - ERROR - Exception details: BadRequestError: status_code: 400, body: {'errorMessage': 'Invalid voice_id en-IN-sneha. Use the GET /v1/speech/voices endpoint to retrieve the full list of supported voices, or visit: https://murf.ai/api/docs/voices-styles/voice-library, to view the voice library in our API docs.', 'errorCode': 400}
+2025-07-25 23:48:56,505 - INFO - HTTP Request: POST https://models.inference.ai.azure.com/chat/completions "HTTP/1.1 200 OK"
+2025-07-25 23:48:56,506 - INFO - 🎵 Generating speech with voice en-IN-sneha: 'Hi Jitesh! It’s great to meet you! How can I assis...'
+2025-07-25 23:48:57,185 - INFO - HTTP Request: POST https://api.murf.ai/v1/speech/generate?origin=python_sdk_2.0.1 "HTTP/1.1 400 Bad Request"
+2025-07-25 23:48:57,185 - ERROR - ❌ Error in text_to_speech: status_code: 400, body: {'errorMessage': 'Invalid voice_id en-IN-sneha. Use the GET /v1/speech/voices endpoint to retrieve the full list of supported voices, or visit: https://murf.ai/api/docs/voices-styles/voice-library, to view the voice library in our API docs.', 'errorCode': 400}
+2025-07-25 23:48:57,185 - ERROR - Exception details: BadRequestError: status_code: 400, body: {'errorMessage': 'Invalid voice_id en-IN-sneha. Use the GET /v1/speech/voices endpoint to retrieve the full list of supported voices, or visit: https://murf.ai/api/docs/voices-styles/voice-library, to view the voice library in our API docs.', 'errorCode': 400}
+2025-07-25 23:49:13,265 - INFO - HTTP Request: POST https://models.inference.ai.azure.com/chat/completions "HTTP/1.1 200 OK"
+2025-07-25 23:49:13,267 - INFO - 🎵 Generating speech with voice en-IN-priya: 'Your name is Jitesh! How can I help you today, Jit...'
+2025-07-25 23:49:15,617 - INFO - HTTP Request: POST https://api.murf.ai/v1/speech/generate?origin=python_sdk_2.0.1 "HTTP/1.1 200 OK"
+2025-07-25 23:49:15,620 - INFO - 📥 Downloading audio from: https://murf.ai/user-upload/one-day-temp/13d54224-01e5-4cb8-b9ba-ac177e3feeba.wav?response-cache-control=max-age%3D604801&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Date=20250725T000000Z&X-Amz-SignedHeaders=host&X-Amz-Expires=259200&X-Amz-Credential=AKIA27M5532DYKBCJICE%2F20250725%2Fus-east-2%2Fs3%2Faws4_request&X-Amz-Signature=9d938406cfe349c205d3ff557e4458437ba171302fd7000a0dac3891ed22894a
+2025-07-25 23:49:17,186 - INFO - ✅ Successfully generated and downloaded speech with Murf API
