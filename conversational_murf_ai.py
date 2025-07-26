@@ -20,11 +20,8 @@ from dataclasses import dataclass
 from dotenv import load_dotenv
 load_dotenv()
 
-# Core imports
 import httpx
 import requests
-
-# Language detection and automation
 try:
     from langdetect import detect, DetectorFactory
     DetectorFactory.seed = 0  # For consistent results
@@ -33,7 +30,6 @@ except ImportError:
     LANGDETECT_AVAILABLE = False
     detect = None
 
-# Note: Automation imports moved after logger setup to handle display issues properly
 AUTOMATION_AVAILABLE = False
 pyautogui = None
 pyperclip = None
