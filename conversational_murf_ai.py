@@ -2094,7 +2094,7 @@ class ConversationalMurfAI(QMainWindow):
 
     def _sync_speak_text(self, text: str):
         """DEPRECATED - replaced by proper thread management"""
-        pass
+        pass  
     
     def speak_last_message(self):
         """Speak the last assistant message"""
