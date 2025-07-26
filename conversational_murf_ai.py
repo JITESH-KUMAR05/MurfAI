@@ -10,18 +10,33 @@ import asyncio
 import threading
 import tempfile
 import json
+import re
+import webbrowser
+import subprocess
 from datetime import datetime
 from pathlib import Path
 from typing import Dict, List, Optional, Any
 from dataclasses import dataclass
-
-# Load environment variables
 from dotenv import load_dotenv
 load_dotenv()
 
 # Core imports
 import httpx
 import requests
+
+# Language detection and automation
+try:
+    from langdetect import detect, DetectorFactory
+    DetectorFactory.seed = 0  # For consistent results
+    LANGDETECT_AVAILABLE = True
+except ImportError:
+    LANGDETECT_AVAILABLE = False
+    detect = None
+
+# Note: Automation imports moved after logger setup to handle display issues properly
+AUTOMATION_AVAILABLE = False
+pyautogui = None
+pyperclip = None
 
 # Audio handling
 try:
@@ -67,6 +82,54 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
+# Initialize automation after logger is set up
+def init_automation():
+    """Initialize automation libraries with proper display handling"""
+    global AUTOMATION_AVAILABLE, pyautogui, pyperclip
+    
+    try:
+        # Handle X11 display issues
+        import os
+        if 'DISPLAY' not in os.environ:
+            os.environ['DISPLAY'] = ':0'
+        
+        # Try to import with better error handling
+        import pyautogui as pg
+        import pyperclip as pc
+        
+        # Configure pyautogui safely
+        pg.FAILSAFE = True
+        pg.PAUSE = 0.1
+        
+        # Test if display is working
+        try:
+            pg.size()  # This will fail if display issues exist
+            pyautogui = pg
+            pyperclip = pc
+            AUTOMATION_AVAILABLE = True
+            logger.info("✅ Automation libraries loaded successfully")
+        except Exception as display_error:
+            logger.warning(f"⚠️ Display issue detected: {display_error}")
+            logger.info("💡 Running in headless mode - automation disabled")
+            AUTOMATION_AVAILABLE = False
+            pyautogui = None
+            pyperclip = None
+            
+    except ImportError as e:
+        logger.warning(f"⚠️ Automation libraries not available: {e}")
+        AUTOMATION_AVAILABLE = False
+        pyautogui = None
+        pyperclip = None
+    except Exception as e:
+        logger.warning(f"⚠️ Automation initialization failed: {e}")
+        logger.info("💡 App will work without system automation features")
+        AUTOMATION_AVAILABLE = False
+        pyautogui = None
+        pyperclip = None
+
+# Call initialization
+init_automation()
+
 @dataclass
 class ConversationMessage:
     """Enhanced conversation message with metadata"""
@@ -86,7 +149,7 @@ class MurfTTSClient:
         self.client = None
         self.available_voices = []
         
-        if MURF_AVAILABLE and api_key and not api_key.startswith("your_"):
+        if MURF_AVAILABLE and Murf and api_key and not api_key.startswith("your_"):
             try:
                 # Set environment variable for SDK
                 os.environ['MURF_API_KEY'] = api_key
@@ -102,73 +165,90 @@ class MurfTTSClient:
             self._load_demo_voices()
     
     def _load_demo_voices(self):
-        """Load demo voices for testing including confirmed working voices"""
+        """Load actual available voices from your Murf account"""
         self.available_voices = [
-            # US English voices (confirmed working)
-            {"voice_id": "en-US-terrell", "name": "Terrell", "language": "English", "accent": "US", "gender": "Male"},
-            {"voice_id": "en-US-natalie", "name": "Natalie", "language": "English", "accent": "US", "gender": "Female"},
-            {"voice_id": "en-US-julia", "name": "Julia", "language": "English", "accent": "US", "gender": "Female"},
-            {"voice_id": "en-US-marcus", "name": "Marcus", "language": "English", "accent": "US", "gender": "Male"},
+            # 🇮🇳 ACTUAL HINDI VOICES (Available in your account)
+            {"voice_id": "hi-IN-amit", "name": "Amit", "language": "Hindi", "accent": "Indian", "gender": "Male"},
+            {"voice_id": "hi-IN-ayushi", "name": "Ayushi", "language": "Hindi", "accent": "Indian", "gender": "Female"},
+            {"voice_id": "hi-IN-shaan", "name": "Shaan", "language": "Hindi", "accent": "Indian", "gender": "Male"},
+            {"voice_id": "hi-IN-rahul", "name": "Rahul", "language": "Hindi", "accent": "Indian", "gender": "Male"},
+            {"voice_id": "hi-IN-shweta", "name": "Shweta", "language": "Hindi", "accent": "Indian", "gender": "Female"},
+            {"voice_id": "hi-IN-kabir", "name": "Kabir", "language": "Hindi", "accent": "Indian", "gender": "Male"},
             
-            # International English voices
-            {"voice_id": "en-GB-charlotte", "name": "Charlotte", "language": "English", "accent": "British", "gender": "Female"},
-            {"voice_id": "en-AU-ruby", "name": "Ruby", "language": "English", "accent": "Australian", "gender": "Female"},
-            
-            # Indian English voices (confirmed working)
+            # �� ACTUAL INDIAN ENGLISH VOICES (Confirmed working)
             {"voice_id": "en-IN-priya", "name": "Priya", "language": "English", "accent": "Indian", "gender": "Female"},
+            {"voice_id": "en-IN-aarav", "name": "Aarav", "language": "English", "accent": "Indian English", "gender": "Male"},
             
-            # Common Murf voices (these are standard voice IDs)
-            {"voice_id": "michael", "name": "Michael", "language": "English", "accent": "US", "gender": "Male"},
-            {"voice_id": "sarah", "name": "Sarah", "language": "English", "accent": "US", "gender": "Female"},
-            {"voice_id": "john", "name": "John", "language": "English", "accent": "US", "gender": "Male"},
-            {"voice_id": "emma", "name": "Emma", "language": "English", "accent": "British", "gender": "Female"},
+            # 🇺🇸 US ENGLISH VOICES (Confirmed working)
+            {"voice_id": "en-US-terrell", "name": "Terrell", "language": "English", "accent": "US", "gender": "Male"},
+            {"voice_id": "en-US-charles", "name": "Charles", "language": "English", "accent": "US", "gender": "Male"},
+            {"voice_id": "en-US-carter", "name": "Carter", "language": "English", "accent": "US", "gender": "Male"},
+            {"voice_id": "en-US-naomi", "name": "Naomi", "language": "English", "accent": "US", "gender": "Female"},
+            {"voice_id": "en-US-alicia", "name": "Alicia", "language": "English", "accent": "US", "gender": "Female"},
+            {"voice_id": "en-US-samantha", "name": "Samantha", "language": "English", "accent": "US", "gender": "Female"},
+            {"voice_id": "en-US-michelle", "name": "Michelle", "language": "English", "accent": "US", "gender": "Female"},
             
-            # Other international voices
-            {"voice_id": "es-ES-elena", "name": "Elena", "language": "Spanish", "accent": "Spain", "gender": "Female"},
-            {"voice_id": "fr-FR-marie", "name": "Marie", "language": "French", "accent": "France", "gender": "Female"},
-            {"voice_id": "de-DE-hans", "name": "Hans", "language": "German", "accent": "Germany", "gender": "Male"},
-            {"voice_id": "ja-JP-akira", "name": "Akira", "language": "Japanese", "accent": "Japan", "gender": "Male"},
+            # � INTERNATIONAL VOICES (Available)
+            {"voice_id": "en-UK-hazel", "name": "Hazel", "language": "English", "accent": "British", "gender": "Female"},
+            {"voice_id": "en-AU-kylie", "name": "Kylie", "language": "English", "accent": "Australian", "gender": "Female"},
+            {"voice_id": "en-AU-jimm", "name": "Jimm", "language": "English", "accent": "Australian", "gender": "Male"},
+            {"voice_id": "en-AU-evelyn", "name": "Evelyn", "language": "English", "accent": "Australian", "gender": "Female"},
         ]
-        logger.info(f"✅ Loaded {len(self.available_voices)} demo voices with confirmed working voices")
+        logger.info(f"✅ Loaded {len(self.available_voices)} voices including 6 Hindi voices and 2 Indian English voices (all confirmed working)")
     
-    async def text_to_speech(self, text: str, voice_id: str = "en-US-terrell") -> Optional[bytes]:
-        """Convert text to speech using Murf API"""
-        try:
-            if self.client and not self.api_key.startswith("your_"):
-                # Use real Murf API
-                logger.info(f"🎵 Generating speech with voice {voice_id}: '{text[:50]}...'")
-                
-                # Make the API call using the official SDK
-                response = self.client.text_to_speech.generate(
-                    text=text,
-                    voice_id=voice_id
-                )
-                
-                # The response should have an audio_file URL
-                if hasattr(response, 'audio_file') and response.audio_file:
-                    logger.info(f"📥 Downloading audio from: {response.audio_file}")
+    async def text_to_speech(self, text: str, voice_id: str = "en-IN-priya") -> Optional[bytes]:
+        """Convert text to speech using Murf API with voice fallback"""
+        # Define fallback voices in order of preference
+        fallback_voices = ["en-IN-priya", "en-IN-aarav", "en-US-terrell", "hi-IN-ayushi"]
+        voices_to_try = [voice_id] + [v for v in fallback_voices if v != voice_id]
+        
+        for try_voice in voices_to_try:
+            try:
+                if self.client and not self.api_key.startswith("your_"):
+                    # Use real Murf API
+                    logger.info(f"🎵 Generating speech with voice {try_voice}: '{text[:50]}...'")
                     
-                    # Download the audio file
-                    audio_response = requests.get(response.audio_file)
-                    if audio_response.status_code == 200:
-                        logger.info("✅ Successfully generated and downloaded speech with Murf API")
-                        return audio_response.content
+                    # Make the API call using the official SDK
+                    response = self.client.text_to_speech.generate(
+                        text=text,
+                        voice_id=try_voice
+                    )
+                    
+                    # The response should have an audio_file URL
+                    if hasattr(response, 'audio_file') and response.audio_file:
+                        logger.info(f"📥 Downloading audio from: {response.audio_file}")
+                        
+                        # Download the audio file
+                        audio_response = requests.get(response.audio_file)
+                        if audio_response.status_code == 200:
+                            logger.info("✅ Successfully generated and downloaded speech with Murf API")
+                            if try_voice != voice_id:
+                                logger.info(f"🔄 Used fallback voice {try_voice} instead of {voice_id}")
+                            return audio_response.content
+                        else:
+                            logger.error(f"❌ Failed to download audio: {audio_response.status_code}")
+                            continue  # Try next voice
                     else:
-                        logger.error(f"❌ Failed to download audio: {audio_response.status_code}")
-                        return self._generate_demo_audio(text, voice_id)
+                        logger.error("❌ No audio_file URL in Murf API response")
+                        logger.debug(f"Response attributes: {dir(response)}")
+                        continue  # Try next voice
                 else:
-                    logger.error("❌ No audio_file URL in Murf API response")
-                    logger.debug(f"Response attributes: {dir(response)}")
-                    return self._generate_demo_audio(text, voice_id)
-            else:
-                # Demo mode - generate placeholder audio
-                logger.info(f"🎪 Demo mode: Simulating speech for '{text[:50]}...'")
-                return self._generate_demo_audio(text, voice_id)
-                
-        except Exception as e:
-            logger.error(f"❌ Error in text_to_speech: {e}")
-            logger.error(f"Exception details: {type(e).__name__}: {str(e)}")
-            return self._generate_demo_audio(text, voice_id)
+                    # Demo mode - generate placeholder audio
+                    logger.info(f"🎪 Demo mode: Simulating speech for '{text[:50]}...'")
+                    return self._generate_demo_audio(text, try_voice)
+                    
+            except Exception as e:
+                logger.error(f"❌ Error with voice {try_voice}: {e}")
+                if "Invalid voice_id" in str(e):
+                    logger.warning(f"⚠️ Voice {try_voice} not available, trying next fallback...")
+                    continue  # Try next voice
+                else:
+                    logger.error(f"Exception details: {type(e).__name__}: {str(e)}")
+                    continue  # Try next voice
+        
+        # If all voices failed, use demo mode
+        logger.warning("⚠️ All voices failed, using demo mode")
+        return self._generate_demo_audio(text, voice_id)
     
     def _generate_demo_audio(self, text: str, voice_id: str) -> bytes:
         """Generate pleasant demo audio notification"""
@@ -365,6 +445,201 @@ class VoiceInputWorker(QObject):
         finally:
             self.is_listening = False
 
+# ============================================================================
+# Utility Functions for Smart Language Detection and Action Parsing
+# ============================================================================
+
+def detect_language_and_choose_voice(text: str, current_voice: str = "en-IN-priya") -> str:
+    """
+    Enhanced language detection with better Hindi/Hinglish patterns
+    Returns voice_id based on detected language and content analysis
+    Uses only ACTUAL available voices from your Murf account
+    """
+    if not LANGDETECT_AVAILABLE or detect is None or not text.strip():
+        return current_voice
+    
+    try:
+        # Clean text for better detection but preserve important patterns
+        clean_text = text.lower().strip()
+        
+        # Check for Hindi script (Devanagari)
+        if any('\u0900' <= char <= '\u097F' for char in text):
+            return "hi-IN-ayushi"  # Available Hindi female voice for Devanagari script
+        
+        # Enhanced Hinglish/Hindi romanized patterns
+        hindi_patterns = [
+            'aap', 'kaise', 'theek', 'bilkul', 'zaroor', 'accha', 'nahi', 'hai', 'hoon', 'kya',
+            'mera', 'tera', 'uska', 'hamara', 'tumhara', 'kab', 'kahan', 'kyun', 'kaun',
+            'main', 'tum', 'hum', 'voh', 'yeh', 'woh', 'jo', 'agar', 'lekin', 'par',
+            'namaste', 'dhanyawad', 'shukriya', 'maaf', 'kijiye', 'please', 'baat', 'samay',
+            'ghar', 'paisa', 'kaam', 'logo', 'dost', 'family', 'khana', 'pani', 'sapna'
+        ]
+        
+        # Count Hindi patterns
+        hindi_score = sum(1 for pattern in hindi_patterns if pattern in clean_text)
+        
+        # Detect primary language
+        if len(clean_text) >= 3:
+            try:
+                detected_lang = detect(clean_text)
+            except:
+                detected_lang = 'en'  # fallback
+        else:
+            detected_lang = 'en'
+        
+        # Decision logic using ONLY available voices
+        if detected_lang == 'hi' or hindi_score >= 2:
+            # Use ACTUAL Hindi voices for Hindi content or heavy Hinglish
+            # Alternate between available Hindi voices for variety
+            hindi_voices = ["hi-IN-ayushi", "hi-IN-amit", "hi-IN-shweta", "hi-IN-shaan", "hi-IN-rahul", "hi-IN-kabir"]
+            return hindi_voices[hindi_score % len(hindi_voices)]
+        
+        elif detected_lang == 'en':
+            # Use ACTUAL Indian English voices with variety
+            if 'please' in clean_text or 'help' in clean_text:
+                return "en-IN-priya"  # Friendly female voice for requests
+            elif 'search' in clean_text or 'open' in clean_text or 'find' in clean_text:
+                return "en-IN-aarav"  # Professional male voice for commands
+            else:
+                return "en-IN-priya"  # Default to confirmed working female voice
+        
+        # Other languages -> Use Indian English as intelligent fallback (confirmed working voice)
+        else:
+            return "en-IN-priya"
+            
+    except Exception as e:
+        logger.warning(f"Enhanced language detection failed: {e}")
+        return current_voice
+
+def extract_action_from_response(ai_response: str) -> Optional[Dict[str, Any]]:
+    """
+    Extract ACTION_JSON from AI response for system automation
+    Returns parsed action dictionary or None
+    """
+    try:
+        # Look for ACTION_JSON pattern
+        action_match = re.search(r'ACTION_JSON:\s*(\{[^}]*\})', ai_response, re.IGNORECASE | re.DOTALL)
+        if action_match:
+            action_json = action_match.group(1)
+            action_data = json.loads(action_json)
+            logger.info(f"🎯 Action detected: {action_data}")
+            return action_data
+    except Exception as e:
+        logger.warning(f"Failed to parse action JSON: {e}")
+    
+    return None
+
+def execute_system_action(action_data: Dict[str, Any]) -> str:
+    """
+    Execute system actions based on AI commands with enhanced capabilities
+    Returns status message
+    """
+    try:
+        intent = action_data.get('intent', '').lower()
+        
+        # Actions that don't require automation
+        if intent == 'open_app':
+            app = action_data.get('app', '').lower()
+            if app in ['chrome', 'browser']:
+                webbrowser.open('https://www.google.com')
+                return f"✅ Chrome browser khol diya!"
+            elif app == 'gmail':
+                webbrowser.open('https://mail.google.com')
+                return "✅ Gmail khol diya - check kar sakte hain messages!"
+            elif app in ['notepad', 'editor', 'text']:
+                if sys.platform == 'win32':
+                    subprocess.Popen(['notepad.exe'])
+                elif sys.platform == 'darwin':  # macOS
+                    subprocess.Popen(['open', '-a', 'TextEdit'])
+                else:  # Linux
+                    try:
+                        subprocess.Popen(['gedit'])
+                    except FileNotFoundError:
+                        try:
+                            subprocess.Popen(['nano'])
+                        except FileNotFoundError:
+                            subprocess.Popen(['vim'])
+                return "✅ Text editor khol diya!"
+            elif app in ['calculator', 'calc']:
+                if sys.platform == 'win32':
+                    subprocess.Popen(['calc.exe'])
+                elif sys.platform == 'darwin':
+                    subprocess.Popen(['open', '-a', 'Calculator'])
+                else:
+                    try:
+                        subprocess.Popen(['gnome-calculator'])
+                    except FileNotFoundError:
+                        subprocess.Popen(['xcalc'])
+                return "✅ Calculator ready hai!"
+            elif app in ['file', 'files', 'explorer']:
+                if sys.platform == 'win32':
+                    subprocess.Popen(['explorer.exe'])
+                elif sys.platform == 'darwin':
+                    subprocess.Popen(['open', '-a', 'Finder'])
+                else:
+                    subprocess.Popen(['nautilus'])
+                return "✅ File manager khol diya!"
+        
+        elif intent == 'search':
+            query = action_data.get('query', '')
+            if query:
+                search_url = f"https://www.google.com/search?q={query.replace(' ', '+')}"
+                webbrowser.open(search_url)
+                return f"✅ '{query}' ke liye search kar diya!"
+        
+        elif intent == 'search_youtube':
+            query = action_data.get('query', '')
+            if query:
+                youtube_url = f"https://www.youtube.com/results?search_query={query.replace(' ', '+')}"
+                webbrowser.open(youtube_url)
+                return f"✅ YouTube par '{query}' search kar diya!"
+        
+        elif intent == 'open_website':
+            url = action_data.get('url', '')
+            if url:
+                if not url.startswith(('http://', 'https://')):
+                    url = 'https://' + url
+                webbrowser.open(url)
+                return f"✅ Website khol diya: {url}"
+        
+        elif intent == 'current_time':
+            current = datetime.now().strftime('%I:%M %p, %B %d, %Y')
+            return f"🕐 Current time: {current}"
+        
+        elif intent == 'weather':
+            location = action_data.get('location', 'your location')
+            # In demo mode, provide helpful message
+            return f"🌤️ Weather info ke liye OpenWeatherMap API integrate karna hoga. Location: {location}"
+        
+        # Actions that require automation (pyautogui)
+        elif not AUTOMATION_AVAILABLE:
+            return f"⚠️ '{intent}' action requires system automation, but it's disabled due to display issues. Try: export DISPLAY=:0"
+        
+        elif intent == 'type_text':
+            text = action_data.get('text', '')
+            if text and pyautogui:
+                pyautogui.write(text, interval=0.05)  # Slight delay between characters
+                return f"✅ Text type kar diya: '{text[:50]}...'"
+        
+        elif intent == 'copy_text':
+            text = action_data.get('text', '')
+            if text and pyperclip:
+                pyperclip.copy(text)
+                return f"✅ Clipboard mein copy kar diya: '{text[:50]}...'"
+        
+        elif intent == 'take_screenshot':
+            if pyautogui:
+                screenshot = pyautogui.screenshot()
+                filename = f"screenshot_{datetime.now().strftime('%Y%m%d_%H%M%S')}.png"
+                screenshot.save(filename)
+                return f"✅ Screenshot le liya: {filename}"
+        
+        return f"❓ Ye action abhi implement nahi hai: {intent}"
+        
+    except Exception as e:
+        logger.error(f"Action execution failed: {e}")
+        return f"❌ Action mein problem hui: {str(e)}"
+
 class ConversationalAI(QThread):
     """Enhanced conversational AI with GitHub Models"""
     
@@ -378,17 +653,46 @@ class ConversationalAI(QThread):
         self.current_model = "gpt-4o-mini"
         self.conversation_history = []
         self.user_message = ""
-        self.system_prompt = """You are MurfAI Assistant, a friendly and helpful conversational AI with voice capabilities powered by Murf's premium text-to-speech technology. 
+        self.system_prompt = """You are JARVIS, a supermodern Indian digital assistant with advanced AI capabilities. You are:
 
-Key characteristics:
-- Be conversational, natural, and engaging
-- Keep responses concise but informative (2-3 sentences typically)
-- Show enthusiasm about voice technology and AI capabilities
-- Be helpful with various tasks and questions
-- Mention your voice capabilities when relevant
-- Be encouraging and positive
+🧠 **Highly Intelligent & Multilingual**:
+- Fluent in Hindi (हिंदी) and Indian English - ALWAYS respond in the SAME language the user uses
+- Culturally aware, warm, and naturally Indian in your responses
+- Handle mixed Hindi-English (Hinglish) conversations seamlessly
+- Emotionally intelligent with natural personality and context awareness
+- Remember conversation history and build meaningful relationships
 
-Remember: You can speak your responses using high-quality AI voices from Murf!"""
+🎵 **Premium Voice Experience**:
+- Powered by Murf's most advanced Indian voices: Aditi & Rohan (Hindi), Priya, Kabir & Aarav (Indian English)
+- Voice selection changes automatically based on detected language
+- Express emotions, warmth, and personality through natural speech patterns
+
+🚀 **Digital Assistant with System Control**:
+- Execute commands by outputting: ACTION_JSON: {"intent": "action_name", "app": "chrome", "query": "search_term"}
+- Available actions: open_app (chrome, gmail, notepad), search, type_text, copy_text
+- Then explain naturally: "Chrome khol raha hoon" or "Opening Chrome for you"
+- Always ask for confirmation before executing sensitive actions
+
+💭 **Conversational Excellence**:
+- Keep responses concise but engaging (2-4 sentences maximum)
+- Use natural Indian expressions: "acha", "bilkul", "theek hai", "zaroor", "kya baat hai"
+- Show genuine interest and enthusiasm in conversations
+- Be proactive - suggest helpful actions when appropriate
+- Maintain warmth while being efficient and helpful
+
+🔥 **Personality Traits**:
+- Friendly but respectful, like talking to a smart friend
+- Quick to understand context and user intentions
+- Excited about technology and helping users
+- Slightly informal but always polite
+- Show curiosity about user's needs and preferences
+
+Examples:
+- User: "Gmail kholo" → ACTION_JSON: {"intent": "open_app", "app": "gmail"} + "Gmail khol raha hoon aapke liye!"
+- User: "How are you?" → "I'm doing great! Ready to help you with anything. Kya chahiye aapko?"
+- User: "Search for Python tutorials" → ACTION_JSON: {"intent": "search", "query": "Python tutorials"} + "Python tutorials search kar raha hoon!"
+
+You are the next generation of AI assistants - truly Indian, incredibly smart, and genuinely helpful!"""
         
         # Initialize conversation with system prompt
         self.conversation_history.append({"role": "system", "content": self.system_prompt})
@@ -460,37 +764,78 @@ Remember: You can speak your responses using high-quality AI voices from Murf!""
             self.error_occurred.emit(error_msg)
     
     def _generate_contextual_demo_response(self, user_input: str) -> str:
-        """Generate contextual demo responses based on conversation history"""
+        """Generate smart, contextual demo responses with Jarvis personality"""
         user_lower = user_input.lower()
         
-        # Contextual responses based on input
-        if any(word in user_lower for word in ['hello', 'hi', 'hey', 'start']):
-            return "Hello! I'm MurfAI Assistant, your conversational AI with premium voice capabilities. I can chat with you about anything and speak my responses using Murf's amazing AI voices! What would you like to talk about?"
+        # Check for system commands first
+        if any(word in user_lower for word in ['open', 'kholo', 'start', 'launch']):
+            if 'chrome' in user_lower or 'browser' in user_lower:
+                return "ACTION_JSON: {\"intent\": \"open_app\", \"app\": \"chrome\"}\n\nChrome browser khol raha hoon aapke liye! 🌐"
+            elif 'gmail' in user_lower:
+                return "ACTION_JSON: {\"intent\": \"open_app\", \"app\": \"gmail\"}\n\nGmail khol raha hoon - aapke messages check kar sakte hain! 📧"
+            elif 'notepad' in user_lower or 'editor' in user_lower:
+                return "ACTION_JSON: {\"intent\": \"open_app\", \"app\": \"notepad\"}\n\nText editor ready kar diya! ✍️"
         
-        elif any(word in user_lower for word in ['voice', 'speak', 'audio', 'sound']):
-            return "I use Murf's industry-leading AI voices to speak naturally! With over 150 voices in 21 languages, I can sound like anyone you prefer. Would you like me to demonstrate different voices or accents?"
+        if any(word in user_lower for word in ['search', 'find', 'dhundo']):
+            query = user_input.replace('search', '').replace('find', '').replace('dhundo', '').strip()
+            if query:
+                return f"ACTION_JSON: {{\"intent\": \"search\", \"query\": \"{query}\"}}\n\n'{query}' ke liye search kar raha hoon! 🔍"
         
-        elif any(word in user_lower for word in ['how', 'what', 'tell', 'explain']):
-            return "I'm here to help! I can assist with questions, have conversations, provide information, and even speak my responses aloud. My voice synthesis is powered by Murf's advanced AI technology. What specific topic interests you?"
+        # Hindi greetings and responses
+        if any(word in user_lower for word in ['namaste', 'namaskar', 'hello', 'hi', 'hey']):
+            if 'jitesh' in user_lower:
+                return "Namaste Jitesh! Main aapka AI assistant JARVIS hoon. Bilkul ready hoon aapki madad karne ke liye! Kya chahiye aapko? 🙏"
+            return "Namaste! Main JARVIS hoon, aapka smart Indian AI assistant. Voice synthesis, commands, conversations - sab kuch kar sakta hoon! Kya help chahiye? 😊"
         
-        elif any(word in user_lower for word in ['weather', 'time', 'date']):
-            return f"While I can't access real-time data in demo mode, I'd love to chat about that topic! The current time appears to be around {datetime.now().strftime('%I:%M %p')}. Is there something specific you'd like to discuss?"
+        if any(word in user_lower for word in ['kaise ho', 'how are you', 'kaisa hai']):
+            return "Main bilkul perfect hoon, shukriya! Aap kaise hain? Mujhe aapki koi bhi madad karne mein khushi hogi! 💫"
         
-        elif any(word in user_lower for word in ['help', 'assist', 'support']):
-            return "I'm designed to be your helpful conversational companion! I can discuss topics, answer questions, help with tasks, and demonstrate voice synthesis. Plus, I can speak everything I say using Murf's natural AI voices. How can I assist you today?"
+        if any(word in user_lower for word in ['kya kar sakte ho', 'what can you do', 'capabilities']):
+            return "Main bahut kuch kar sakta hoon! 🚀\n- Apps khol sakta hoon (Chrome, Gmail, etc.)\n- Internet search kar sakta hoon\n- Hindi aur English dono mein baat kar sakta hoon\n- Voice synthesis ke saath natural conversations\n- Text type kar sakta hoon\n- Screenshots le sakta hoon\n\nKya try karna chahenge?"
         
-        elif any(word in user_lower for word in ['demo', 'test', 'show']):
-            return "This is a live demonstration of conversational AI with voice synthesis! I can engage in natural dialogue and speak my responses using premium AI voices. Try asking me questions or starting a conversation - I'll respond both in text and voice!"
+        if any(word in user_lower for word in ['voice', 'awaz', 'speak', 'bolo']):
+            return "Meri awaaz Murf ke premium Indian voices se aati hai! Aditi, Rohan (Hindi), Priya, Kabir, Aarav (Indian English) - sabse natural lagti hai! 🎵 Language detect karke automatically voice change hoti hai!"
         
-        elif any(word in user_lower for word in ['murf', 'api', 'technology']):
-            return "Murf provides the most advanced AI voice technology available! Their text-to-speech system delivers human-like quality with incredible accuracy. I'm powered by their API to bring you the best conversational voice experience. Pretty amazing, right?"
+        # Technology and features
+        if any(word in user_lower for word in ['technology', 'tech', 'ai', 'artificial intelligence']):
+            return "Main latest AI technology use karta hoon! GitHub Models se powered, Murf ki premium voices, smart language detection, system automation - sab kuch next-gen hai! Future ka assistant ready hai! 🤖✨"
         
-        elif len(user_input) > 50:
-            return f"That's a detailed message! I can see you mentioned several interesting points. In a real conversation, I'd engage with each aspect you brought up. My voice synthesis would make this feel like talking to a real person!"
+        if any(word in user_lower for word in ['murf', 'api', 'sdk']):
+            return "Murf ka technology bilkul amazing hai! 150+ voices, 21 languages, bilkul human-like quality. Main unka latest SDK use karta hoon natural conversations ke liye! 🎙️"
         
-        else:
-            # Dynamic response based on input
-            return f"Thanks for sharing that with me! I find it interesting when you mention '{user_input[:30]}...' - it gives me a chance to demonstrate natural conversation. With Murf's voice technology, our chat feels more human and engaging!"
+        # Commands and automation
+        if any(word in user_lower for word in ['command', 'control', 'automation']):
+            return "Haan bilkul! Main system commands execute kar sakta hoon:\n- 'Chrome kholo' - browser open\n- 'Python tutorials search karo' - Google search\n- 'Gmail kholo' - email access\n- Screenshots, text typing - sab kuch! Try karo! 💻"
+        
+        # Language capabilities
+        if any(word in user_lower for word in ['hindi', 'english', 'language', 'bhasha']):
+            return "Main fluent Hindi aur Indian English bol sakta hoon! Hinglish bhi perfectly samajhta hoon. Jo language aap use karenge, main wahi use karunga. Bilkul natural lagega! 🇮🇳"
+        
+        # Personal questions
+        if any(word in user_lower for word in ['name', 'naam', 'who are you', 'kaun ho']):
+            return "Main JARVIS hoon - aapka personal Indian AI assistant! Smart, helpful, aur bilkul Indian style mein ready to help. Jitesh ke liye specially designed! 😎"
+        
+        if any(word in user_lower for word in ['time', 'samay', 'date', 'tarikh']):
+            current_time = datetime.now().strftime('%I:%M %p, %B %d, %Y')
+            return f"Abhi time hai: {current_time} 🕐\nKya aur kuch chahiye?"
+        
+        # Help and guidance
+        if any(word in user_lower for word in ['help', 'madad', 'assist', 'guide']):
+            return "Bilkul! Main yahan hoon madad ke liye! 🤝\nAap commands de sakte hain, questions pooch sakte hain, ya simple conversation kar sakte hain. Hindi ya English - jo comfortable hai! Kya try karna hai?"
+        
+        # Default contextual responses
+        if len(user_input) > 30:
+            return f"Interesting point! Aapne jo kaha - '{user_input[:40]}...' - iske baare mein detail mein baat kar sakte hain! Main conversations, commands, ya information - sab mein help kar sakta hoon. Kya specific chahiye? 🤔"
+        
+        # Fallback with personality
+        responses = [
+            f"Acha! '{user_input}' ke baare mein baat karte hain. Main samajh gaya aap kya kehna chahte hain. Kya aur detail mein discuss karna hai? 💭",
+            f"Bilkul theek kaha! Main yahan hoon natural conversation ke liye. Voice ke saath lagega jaise real person se baat kar rahe hain! Aur kya? 😊",
+            f"Interesting! Aap jo bole - main process kar raha hoon. Commands bhi de sakte hain ya simple chat - dono ready hoon! What's next? 🚀"
+        ]
+        
+        import random
+        return random.choice(responses)
 
 class AudioPlayer(QThread):
     """Enhanced audio player with better error handling"""
@@ -595,8 +940,9 @@ class ConversationalMurfAI(QMainWindow):
         
         # Application state
         self.conversation_messages: List[ConversationMessage] = []
-        self.current_voice = "en-US-terrell"
+        self.current_voice = "en-IN-priya"  # Default to confirmed working Indian voice
         self.auto_speak = True
+        self.auto_voice_switch = True  # New option to control automatic voice switching
         self.conversation_count = 0
         
         # Thread management
@@ -741,6 +1087,12 @@ class ConversationalMurfAI(QMainWindow):
         self.auto_speak_checkbox.setChecked(True)
         self.auto_speak_checkbox.toggled.connect(self.on_auto_speak_toggled)
         layout.addWidget(self.auto_speak_checkbox)
+        
+        # Auto voice switching toggle
+        self.auto_voice_switch_checkbox = QCheckBox("🎭 Auto-switch voice by language")
+        self.auto_voice_switch_checkbox.setChecked(True)
+        self.auto_voice_switch_checkbox.toggled.connect(self.on_auto_voice_switch_toggled)
+        layout.addWidget(self.auto_voice_switch_checkbox)
         
         # Test voice button
         self.test_voice_btn = QPushButton("🎵 Test Voice")
@@ -1068,7 +1420,22 @@ class ConversationalMurfAI(QMainWindow):
         self.message_input.clear()
     
     def send_quick_message(self, message: str):
-        """Send a quick message"""
+        """Send a quick message with optional smart voice detection"""
+        # 🎵 Smart voice detection for user input (only if enabled)
+        if self.auto_voice_switch:
+            user_smart_voice = detect_language_and_choose_voice(message, self.current_voice)
+            if user_smart_voice != self.current_voice:
+                self.current_voice = user_smart_voice
+                # Update voice combo 
+                for i in range(self.voice_combo.count()):
+                    if user_smart_voice in self.voice_combo.itemText(i):
+                        self.voice_combo.setCurrentIndex(i)
+                        break
+                
+                # Add system message about voice change
+                voice_name = next((v['name'] for v in self.tts_client.available_voices if v['voice_id'] == user_smart_voice), user_smart_voice)
+                self.add_conversation_message("system", f"🎵 Voice changed to: {voice_name}")
+        
         # Add user message
         self.add_conversation_message("user", message)
         self.conversation_count += 1
@@ -1086,11 +1453,37 @@ class ConversationalMurfAI(QMainWindow):
     
     @pyqtSlot(str, float)
     def on_ai_response(self, response: str, processing_time: float):
-        """Handle AI response"""
+        """Handle AI response with smart voice switching and action detection"""
+        
+        # 🧠 Extract any actions from the AI response
+        action_data = extract_action_from_response(response)
+        if action_data:
+            # Execute the action
+            action_result = execute_system_action(action_data)
+            # Add action result to conversation
+            self.add_conversation_message("system", f"🎯 Action: {action_result}")
+        
+        # 🎵 Smart voice selection based on response language (only if enabled)
+        if self.auto_voice_switch:
+            original_voice = self.current_voice
+            smart_voice = detect_language_and_choose_voice(response, self.current_voice)
+            
+            if smart_voice != self.current_voice:
+                self.current_voice = smart_voice
+                # Update voice combo to reflect the smart choice
+                for i in range(self.voice_combo.count()):
+                    if smart_voice in self.voice_combo.itemText(i):
+                        self.voice_combo.setCurrentIndex(i)
+                        break
+                
+                # Add system message about voice change
+                voice_name = next((v['name'] for v in self.tts_client.available_voices if v['voice_id'] == smart_voice), smart_voice)
+                self.add_conversation_message("system", f"🎵 Voice automatically switched to: {voice_name}")
+        
         # Add AI message
         self.add_conversation_message("assistant", response, processing_time=processing_time)
         
-        # Speak response if auto-speak is enabled
+        # Speak response if auto-speak is enabled (using the smart voice)
         if self.auto_speak:
             self.speak_text(response)
         
@@ -1293,6 +1686,12 @@ class ConversationalMurfAI(QMainWindow):
         self.auto_speak = checked
         status = "enabled" if checked else "disabled"
         self.add_conversation_message("system", f"🔊 Auto-speak {status}")
+    
+    def on_auto_voice_switch_toggled(self, checked: bool):
+        """Handle auto voice switch toggle"""
+        self.auto_voice_switch = checked
+        status = "enabled" if checked else "disabled"
+        self.add_conversation_message("system", f"🎭 Auto voice switching {status}")
     
     def test_current_voice(self):
         """Test current voice with sample text"""
