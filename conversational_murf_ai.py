@@ -24,7 +24,7 @@ import httpx
 import requests
 try:
     from langdetect import detect, DetectorFactory
-    DetectorFactory.seed = 0  # For consistent results
+    DetectorFactory.seed = 0 
     LANGDETECT_AVAILABLE = True
 except ImportError:
     LANGDETECT_AVAILABLE = False
@@ -34,7 +34,6 @@ AUTOMATION_AVAILABLE = False
 pyautogui = None
 pyperclip = None
 
-# Audio handling
 try:
     import pygame
     from pydub import AudioSegment
@@ -49,7 +48,6 @@ except ImportError:
     AudioSegment = None
     sr = None
 
-# Murf SDK
 try:
     from murf import Murf
     MURF_AVAILABLE = True
@@ -57,7 +55,6 @@ except ImportError:
     MURF_AVAILABLE = False
     Murf = None
 
-# GUI imports
 from PyQt6.QtWidgets import (
     QApplication, QMainWindow, QVBoxLayout, QHBoxLayout, QWidget,
     QPushButton, QTextEdit, QLabel, QComboBox, QFrame, QLineEdit,
@@ -67,7 +64,6 @@ from PyQt6.QtWidgets import (
 from PyQt6.QtCore import QThread, pyqtSignal, Qt, pyqtSlot, QTimer, QObject
 from PyQt6.QtGui import QFont, QIcon
 
-# Configure logging
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(levelname)s - %(message)s',
@@ -84,12 +80,10 @@ def init_automation():
     global AUTOMATION_AVAILABLE, pyautogui, pyperclip
     
     try:
-        # Handle X11 display issues
         import os
         if 'DISPLAY' not in os.environ:
             os.environ['DISPLAY'] = ':0'
         
-        # Try to import with better error handling
         import pyautogui as pg
         import pyperclip as pc
         
@@ -123,7 +117,7 @@ def init_automation():
         pyautogui = None
         pyperclip = None
 
-# Call initialization
+
 init_automation()
 
 @dataclass
