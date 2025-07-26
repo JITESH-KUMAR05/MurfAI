@@ -1,6 +1,31 @@
 """
-MurfAI Conversational Assistant - Enhanced Version
-Real conversational AI with proper Murf API integration and improved UX
+Go To Buddy - AI-Powered Desktop Assistant
+=========================================
+
+A sophisticated conversational AI assistant powered by:
+- 🎵 Murf API: Premium text-to-speech synthesis with Indian voices
+- 🧠 GitHub Models: Advanced conversational AI capabilities  
+- 🖥️ PyQt6: Modern desktop GUI with responsive design
+- 🎤 Speech Recognition: Voice input processing
+- 🔄 System Integration: Automated command execution
+
+Key Features:
+- Natural bilingual conversations (Hindi/English)
+- Premium voice synthesis with voice caching
+- Smart language detection and voice switching
+- System automation and command execution
+- Multiple UI themes and responsive design
+- Session statistics and conversation export
+
+Technical Stack:
+- Python 3.11+ with async/await patterns
+- Official Murf SDK for voice synthesis
+- PyQt6 for cross-platform GUI
+- Speech recognition and audio processing
+- Multi-threaded architecture for responsive UI
+
+Author: Jitesh Kumar
+Version: 2.0 Enhanced
 """
 
 import os
@@ -13,6 +38,7 @@ import json
 import re
 import webbrowser
 import subprocess
+import hashlib
 from datetime import datetime
 from pathlib import Path
 from typing import Dict, List, Optional, Any
@@ -132,32 +158,39 @@ class ConversationMessage:
     processing_time: Optional[float] = None
 
 class MurfTTSClient:
-    """Enhanced Murf Text-to-Speech client using official SDK"""
+    """Enhanced Murf Text-to-Speech client with voice caching and better error handling"""
     
     def __init__(self, api_key: str):
         self.api_key = api_key
         self.client = None
         self.available_voices = []
         
+        # Voice caching system for faster responses
+        self.voice_cache = {}
+        self.cache_dir = Path("voice_cache")
+        self.cache_dir.mkdir(exist_ok=True)
+        self.max_cache_size = 50  # Maximum cached audio files
+        
         if MURF_AVAILABLE and Murf and api_key and not api_key.startswith("your_"):
             try:
                 # Set environment variable for SDK
                 os.environ['MURF_API_KEY'] = api_key
                 self.client = Murf(api_key=api_key)
-                logger.info("✅ Murf client initialized successfully")
+                logger.info("✅ Murf client initialized successfully with voice caching enabled")
                 self._load_demo_voices()  # Use demo voices for now
             except Exception as e:
                 logger.error(f"❌ Failed to initialize Murf client: {e}")
+                logger.error(f"Error details: {type(e).__name__}: {str(e)}")
                 self.client = None
                 self._load_demo_voices()
         else:
-            logger.warning("⚠️ Murf SDK not available or API key not configured")
+            logger.warning("⚠️ Murf SDK not available or API key not configured - using demo mode")
             self._load_demo_voices()
     
     def _load_demo_voices(self):
         """Load actual available voices from your Murf account"""
         self.available_voices = [
-            # 🇮🇳 ACTUAL HINDI VOICES (Available in your account)
+            # HINDI VOICES 
             {"voice_id": "hi-IN-amit", "name": "Amit", "language": "Hindi", "accent": "Indian", "gender": "Male"},
             {"voice_id": "hi-IN-ayushi", "name": "Ayushi", "language": "Hindi", "accent": "Indian", "gender": "Female"},
             {"voice_id": "hi-IN-shaan", "name": "Shaan", "language": "Hindi", "accent": "Indian", "gender": "Male"},
@@ -165,11 +198,11 @@ class MurfTTSClient:
             {"voice_id": "hi-IN-shweta", "name": "Shweta", "language": "Hindi", "accent": "Indian", "gender": "Female"},
             {"voice_id": "hi-IN-kabir", "name": "Kabir", "language": "Hindi", "accent": "Indian", "gender": "Male"},
             
-            # �� ACTUAL INDIAN ENGLISH VOICES (Confirmed working)
+            # INDIAN ENGLISH VOICES
             {"voice_id": "en-IN-priya", "name": "Priya", "language": "English", "accent": "Indian", "gender": "Female"},
             {"voice_id": "en-IN-aarav", "name": "Aarav", "language": "English", "accent": "Indian English", "gender": "Male"},
             
-            # 🇺🇸 US ENGLISH VOICES (Confirmed working)
+            # International Voices
             {"voice_id": "en-US-terrell", "name": "Terrell", "language": "English", "accent": "US", "gender": "Male"},
             {"voice_id": "en-US-charles", "name": "Charles", "language": "English", "accent": "US", "gender": "Male"},
             {"voice_id": "en-US-carter", "name": "Carter", "language": "English", "accent": "US", "gender": "Male"},
@@ -178,7 +211,6 @@ class MurfTTSClient:
             {"voice_id": "en-US-samantha", "name": "Samantha", "language": "English", "accent": "US", "gender": "Female"},
             {"voice_id": "en-US-michelle", "name": "Michelle", "language": "English", "accent": "US", "gender": "Female"},
             
-            # � INTERNATIONAL VOICES (Available)
             {"voice_id": "en-UK-hazel", "name": "Hazel", "language": "English", "accent": "British", "gender": "Female"},
             {"voice_id": "en-AU-kylie", "name": "Kylie", "language": "English", "accent": "Australian", "gender": "Female"},
             {"voice_id": "en-AU-jimm", "name": "Jimm", "language": "English", "accent": "Australian", "gender": "Male"},
@@ -186,8 +218,70 @@ class MurfTTSClient:
         ]
         logger.info(f"✅ Loaded {len(self.available_voices)} voices including 6 Hindi voices and 2 Indian English voices (all confirmed working)")
     
+    def _get_cache_key(self, text: str, voice_id: str) -> str:
+        """Generate a unique cache key for text and voice combination"""
+        content = f"{text}_{voice_id}"
+        return hashlib.md5(content.encode()).hexdigest()
+    
+    def _get_cached_audio(self, cache_key: str) -> Optional[bytes]:
+        """Retrieve cached audio if available"""
+        try:
+            cache_file = self.cache_dir / f"{cache_key}.wav"
+            if cache_file.exists():
+                logger.info(f"🎯 Using cached audio for key: {cache_key[:8]}...")
+                return cache_file.read_bytes()
+        except Exception as e:
+            logger.warning(f"⚠️ Failed to read cached audio: {e}")
+        return None
+    
+    def _save_to_cache(self, cache_key: str, audio_data: bytes) -> None:
+        """Save audio data to cache with size management"""
+        try:
+            # Clean old cache if needed
+            self._cleanup_cache()
+            
+            cache_file = self.cache_dir / f"{cache_key}.wav"
+            cache_file.write_bytes(audio_data)
+            
+            # Update in-memory cache tracking
+            self.voice_cache[cache_key] = {
+                'created': datetime.now(),
+                'file': cache_file,
+                'size': len(audio_data)
+            }
+            
+            logger.info(f"💾 Cached audio for key: {cache_key[:8]}...")
+            
+        except Exception as e:
+            logger.warning(f"⚠️ Failed to save audio to cache: {e}")
+    
+    def _cleanup_cache(self) -> None:
+        """Clean up old cache files if cache size limit exceeded"""
+        try:
+            cache_files = list(self.cache_dir.glob("*.wav"))
+            if len(cache_files) >= self.max_cache_size:
+                # Sort by modification time and remove oldest
+                cache_files.sort(key=lambda f: f.stat().st_mtime)
+                for old_file in cache_files[:len(cache_files) - self.max_cache_size + 10]:
+                    old_file.unlink()
+                    logger.info(f"🗑️ Removed old cached audio: {old_file.name}")
+                    
+                # Clean up in-memory tracking
+                remaining_keys = [f.stem for f in self.cache_dir.glob("*.wav")]
+                self.voice_cache = {k: v for k, v in self.voice_cache.items() if k in remaining_keys}
+                
+        except Exception as e:
+            logger.warning(f"⚠️ Cache cleanup failed: {e}")
+    
     async def text_to_speech(self, text: str, voice_id: str = "en-IN-priya") -> Optional[bytes]:
-        """Convert text to speech using Murf API with voice fallback"""
+        """Convert text to speech using Murf API with voice caching and enhanced error handling"""
+        
+        # Check cache first for faster responses
+        cache_key = self._get_cache_key(text, voice_id)
+        cached_audio = self._get_cached_audio(cache_key)
+        if cached_audio:
+            return cached_audio
+        
         # Define fallback voices in order of preference
         fallback_voices = ["en-IN-priya", "en-IN-aarav", "en-US-terrell", "hi-IN-ayushi"]
         voices_to_try = [voice_id] + [v for v in fallback_voices if v != voice_id]
@@ -195,7 +289,7 @@ class MurfTTSClient:
         for try_voice in voices_to_try:
             try:
                 if self.client and not self.api_key.startswith("your_"):
-                    # Use real Murf API
+                    
                     logger.info(f"🎵 Generating speech with voice {try_voice}: '{text[:50]}...'")
                     
                     # Make the API call using the official SDK
@@ -208,37 +302,70 @@ class MurfTTSClient:
                     if hasattr(response, 'audio_file') and response.audio_file:
                         logger.info(f"📥 Downloading audio from: {response.audio_file}")
                         
-                        # Download the audio file
-                        audio_response = requests.get(response.audio_file)
-                        if audio_response.status_code == 200:
-                            logger.info("✅ Successfully generated and downloaded speech with Murf API")
-                            if try_voice != voice_id:
-                                logger.info(f"🔄 Used fallback voice {try_voice} instead of {voice_id}")
-                            return audio_response.content
-                        else:
-                            logger.error(f"❌ Failed to download audio: {audio_response.status_code}")
+                        # Download the audio file with better error handling
+                        try:
+                            audio_response = requests.get(response.audio_file, timeout=30)
+                            if audio_response.status_code == 200:
+                                audio_data = audio_response.content
+                                logger.info("✅ Successfully generated and downloaded speech with Murf API")
+                                
+                                # Cache the audio for future use
+                                self._save_to_cache(cache_key, audio_data)
+                                
+                                if try_voice != voice_id:
+                                    logger.info(f"🔄 Used fallback voice {try_voice} instead of {voice_id}")
+                                return audio_data
+                            else:
+                                error_msg = f"HTTP {audio_response.status_code}: Failed to download audio"
+                                if audio_response.status_code == 401:
+                                    error_msg += " - Invalid Murf API key or unauthorized access"
+                                elif audio_response.status_code == 403:
+                                    error_msg += " - Forbidden - Check your Murf subscription or voice access"
+                                elif audio_response.status_code == 429:
+                                    error_msg += " - Rate limit exceeded - Please wait before retrying"
+                                logger.error(f"❌ {error_msg}")
+                                continue  # Try next voice
+                        except requests.RequestException as req_err:
+                            logger.error(f"❌ Network error downloading audio: {req_err}")
                             continue  # Try next voice
                     else:
                         logger.error("❌ No audio_file URL in Murf API response")
-                        logger.debug(f"Response attributes: {dir(response)}")
+                        logger.debug(f"Response attributes: {dir(response) if response else 'None'}")
+                        if hasattr(response, 'error'):
+                            logger.error(f"API Error: {response.error}")
                         continue  # Try next voice
                 else:
                     # Demo mode - generate placeholder audio
                     logger.info(f"🎪 Demo mode: Simulating speech for '{text[:50]}...'")
-                    return self._generate_demo_audio(text, try_voice)
+                    demo_audio = self._generate_demo_audio(text, try_voice)
+                    
+                    # Cache demo audio too for consistency
+                    self._save_to_cache(cache_key, demo_audio)
+                    return demo_audio
                     
             except Exception as e:
-                logger.error(f"❌ Error with voice {try_voice}: {e}")
-                if "Invalid voice_id" in str(e):
-                    logger.warning(f"⚠️ Voice {try_voice} not available, trying next fallback...")
-                    continue  # Try next voice
+                # Enhanced error reporting for better debugging
+                error_type = type(e).__name__
+                error_msg = str(e)
+                
+                if "Invalid voice_id" in error_msg or "voice not found" in error_msg.lower():
+                    logger.warning(f"⚠️ Voice {try_voice} not available: {error_msg}")
+                elif "authentication" in error_msg.lower() or "unauthorized" in error_msg.lower():
+                    logger.error(f"🔐 Authentication error with Murf API: {error_msg}")
+                elif "quota" in error_msg.lower() or "limit" in error_msg.lower():
+                    logger.error(f"💰 API quota/limit exceeded: {error_msg}")
+                elif "network" in error_msg.lower() or "connection" in error_msg.lower():
+                    logger.error(f"🌐 Network connectivity issue: {error_msg}")
                 else:
-                    logger.error(f"Exception details: {type(e).__name__}: {str(e)}")
-                    continue  # Try next voice
+                    logger.error(f"❌ Unexpected error with voice {try_voice}: {error_type}: {error_msg}")
+                
+                continue  # Try next voice
         
-        # If all voices failed, use demo mode
-        logger.warning("⚠️ All voices failed, using demo mode")
-        return self._generate_demo_audio(text, voice_id)
+        # If all voices failed, use demo mode with caching
+        logger.warning("⚠️ All voices failed, falling back to demo mode")
+        demo_audio = self._generate_demo_audio(text, voice_id)
+        self._save_to_cache(cache_key, demo_audio)
+        return demo_audio
     
     def _generate_demo_audio(self, text: str, voice_id: str) -> bytes:
         """Generate pleasant demo audio notification"""
@@ -935,6 +1062,15 @@ class ConversationalMurfAI(QMainWindow):
         self.auto_voice_switch = True  # New option to control automatic voice switching
         self.conversation_count = 0
         
+        # Theme system
+        self.current_theme = "dark"  # Default theme
+        self.available_themes = {
+            "dark": "🌙 Dark Theme",
+            "light": "☀️ Light Theme", 
+            "blue": "💙 Blue Ocean Theme",
+            "green": "🌿 Nature Theme"
+        }
+        
         # Thread management
         self._tts_thread = None
         self._tts_worker = None
@@ -1092,14 +1228,22 @@ class ConversationalMurfAI(QMainWindow):
         return section
     
     def create_conversation_settings_section(self) -> QWidget:
-        """Create conversation settings section"""
+        """Create conversation settings section with theme selection"""
         section = QFrame()
         section.setFrameStyle(QFrame.Shape.StyledPanel)
         layout = QVBoxLayout(section)
         
-        title = QLabel("💬 Conversation Settings")
+        title = QLabel("💬 Conversation & UI Settings")
         title.setFont(QFont("Arial", 14, QFont.Weight.Bold))
         layout.addWidget(title)
+        
+        # Theme selection
+        layout.addWidget(QLabel("🎨 Theme:"))
+        self.theme_combo = QComboBox()
+        for theme_key, theme_name in self.available_themes.items():
+            self.theme_combo.addItem(theme_name, theme_key)
+        self.theme_combo.currentTextChanged.connect(self.on_theme_changed)
+        layout.addWidget(self.theme_combo)
         
         # Clear conversation button
         self.clear_btn = QPushButton("🗑️ Clear Conversation")
@@ -1256,9 +1400,24 @@ class ConversationalMurfAI(QMainWindow):
         else:
             self.status_bar.showMessage("🔗 Connected to GitHub Models & Murf API - Full functionality active")
     
-    def apply_enhanced_theme(self):
-        """Apply enhanced modern dark theme"""
-        self.setStyleSheet("""
+    def apply_enhanced_theme(self, theme_name: Optional[str] = None):
+        """Apply theme based on selection with multiple theme options"""
+        selected_theme = theme_name if theme_name is not None else self.current_theme
+            
+        themes = {
+            "dark": self._get_dark_theme(),
+            "light": self._get_light_theme(),
+            "blue": self._get_blue_theme(),
+            "green": self._get_green_theme()
+        }
+        
+        stylesheet = themes.get(selected_theme, themes["dark"])
+        self.setStyleSheet(stylesheet)
+        logger.info(f"🎨 Applied {selected_theme} theme")
+    
+    def _get_dark_theme(self) -> str:
+        """Get dark theme stylesheet"""
+        return """
             QMainWindow {
                 background-color: #1e1e1e;
                 color: #ffffff;
@@ -1351,7 +1510,307 @@ class ConversationalMurfAI(QMainWindow):
                 border-top: 1px solid #3e3e3e;
                 padding: 5px;
             }
-        """)
+        """
+        
+    def _get_light_theme(self) -> str:
+        """Get light theme stylesheet"""
+        return """
+            QMainWindow {
+                background-color: #f5f5f5;
+                color: #333333;
+            }
+            QFrame {
+                background-color: #ffffff;
+                border: 1px solid #d0d0d0;
+                border-radius: 12px;
+                margin: 8px;
+                padding: 16px;
+            }
+            QLabel {
+                color: #333333;
+                font-weight: bold;
+                padding: 6px;
+            }
+            QPushButton {
+                background-color: #007acc;
+                color: white;
+                border: none;
+                padding: 14px;
+                border-radius: 10px;
+                font-weight: bold;
+                font-size: 13px;
+                min-height: 20px;
+            }
+            QPushButton:hover {
+                background-color: #005a9e;
+            }
+            QPushButton:pressed {
+                background-color: #004080;
+            }
+            QTextEdit {
+                background-color: #ffffff;
+                color: #333333;
+                border: 1px solid #d0d0d0;
+                border-radius: 10px;
+                padding: 12px;
+                font-family: 'Consolas', 'Monaco', monospace;
+                line-height: 1.4;
+            }
+            QLineEdit, QComboBox {
+                background-color: #ffffff;
+                color: #333333;
+                border: 1px solid #d0d0d0;
+                border-radius: 8px;
+                padding: 12px;
+                font-size: 12px;
+            }
+            QComboBox::drop-down {
+                border: none;
+                width: 20px;
+            }
+            QComboBox::down-arrow {
+                image: none;
+                border-style: solid;
+                border-width: 5px;
+                border-color: #333333 transparent transparent transparent;
+            }
+            QCheckBox {
+                color: #333333;
+                font-weight: bold;
+                padding: 8px;
+            }
+            QCheckBox::indicator {
+                width: 18px;
+                height: 18px;
+                border: 2px solid #d0d0d0;
+                border-radius: 4px;
+                background-color: #ffffff;
+            }
+            QCheckBox::indicator:checked {
+                background-color: #007acc;
+                border-color: #007acc;
+            }
+            QProgressBar {
+                border: 1px solid #d0d0d0;
+                border-radius: 8px;
+                text-align: center;
+                color: #333333;
+                height: 20px;
+            }
+            QProgressBar::chunk {
+                background-color: #007acc;
+                border-radius: 8px;
+            }
+            QStatusBar {
+                background-color: #ffffff;
+                color: #333333;
+                border-top: 1px solid #d0d0d0;
+                padding: 5px;
+            }
+        """
+        
+    def _get_blue_theme(self) -> str:
+        """Get blue ocean theme stylesheet"""
+        return """
+            QMainWindow {
+                background-color: #0f172a;
+                color: #e2e8f0;
+            }
+            QFrame {
+                background-color: #1e293b;
+                border: 1px solid #334155;
+                border-radius: 12px;
+                margin: 8px;
+                padding: 16px;
+            }
+            QLabel {
+                color: #e2e8f0;
+                font-weight: bold;
+                padding: 6px;
+            }
+            QPushButton {
+                background-color: #0ea5e9;
+                color: white;
+                border: none;
+                padding: 14px;
+                border-radius: 10px;
+                font-weight: bold;
+                font-size: 13px;
+                min-height: 20px;
+            }
+            QPushButton:hover {
+                background-color: #0284c7;
+            }
+            QPushButton:pressed {
+                background-color: #0369a1;
+            }
+            QTextEdit {
+                background-color: #111827;
+                color: #e2e8f0;
+                border: 1px solid #334155;
+                border-radius: 10px;
+                padding: 12px;
+                font-family: 'Consolas', 'Monaco', monospace;
+                line-height: 1.4;
+            }
+            QLineEdit, QComboBox {
+                background-color: #1e293b;
+                color: #e2e8f0;
+                border: 1px solid #334155;
+                border-radius: 8px;
+                padding: 12px;
+                font-size: 12px;
+            }
+            QComboBox::drop-down {
+                border: none;
+                width: 20px;
+            }
+            QComboBox::down-arrow {
+                image: none;
+                border-style: solid;
+                border-width: 5px;
+                border-color: #e2e8f0 transparent transparent transparent;
+            }
+            QCheckBox {
+                color: #e2e8f0;
+                font-weight: bold;
+                padding: 8px;
+            }
+            QCheckBox::indicator {
+                width: 18px;
+                height: 18px;
+                border: 2px solid #334155;
+                border-radius: 4px;
+                background-color: #1e293b;
+            }
+            QCheckBox::indicator:checked {
+                background-color: #0ea5e9;
+                border-color: #0ea5e9;
+            }
+            QProgressBar {
+                border: 1px solid #334155;
+                border-radius: 8px;
+                text-align: center;
+                color: #e2e8f0;
+                height: 20px;
+            }
+            QProgressBar::chunk {
+                background-color: #0ea5e9;
+                border-radius: 8px;
+            }
+            QStatusBar {
+                background-color: #1e293b;
+                color: #e2e8f0;
+                border-top: 1px solid #334155;
+                padding: 5px;
+            }
+        """
+        
+    def _get_green_theme(self) -> str:
+        """Get nature green theme stylesheet"""
+        return """
+            QMainWindow {
+                background-color: #0f1419;
+                color: #d4edda;
+            }
+            QFrame {
+                background-color: #1a2e20;
+                border: 1px solid #28a745;
+                border-radius: 12px;
+                margin: 8px;
+                padding: 16px;
+            }
+            QLabel {
+                color: #d4edda;
+                font-weight: bold;
+                padding: 6px;
+            }
+            QPushButton {
+                background-color: #28a745;
+                color: white;
+                border: none;
+                padding: 14px;
+                border-radius: 10px;
+                font-weight: bold;
+                font-size: 13px;
+                min-height: 20px;
+            }
+            QPushButton:hover {
+                background-color: #34ce57;
+            }
+            QPushButton:pressed {
+                background-color: #1e7e34;
+            }
+            QTextEdit {
+                background-color: #131a15;
+                color: #d4edda;
+                border: 1px solid #28a745;
+                border-radius: 10px;
+                padding: 12px;
+                font-family: 'Consolas', 'Monaco', monospace;
+                line-height: 1.4;
+            }
+            QLineEdit, QComboBox {
+                background-color: #1a2e20;
+                color: #d4edda;
+                border: 1px solid #28a745;
+                border-radius: 8px;
+                padding: 12px;
+                font-size: 12px;
+            }
+            QComboBox::drop-down {
+                border: none;
+                width: 20px;
+            }
+            QComboBox::down-arrow {
+                image: none;
+                border-style: solid;
+                border-width: 5px;
+                border-color: #d4edda transparent transparent transparent;
+            }
+            QCheckBox {
+                color: #d4edda;
+                font-weight: bold;
+                padding: 8px;
+            }
+            QCheckBox::indicator {
+                width: 18px;
+                height: 18px;
+                border: 2px solid #28a745;
+                border-radius: 4px;
+                background-color: #1a2e20;
+            }
+            QCheckBox::indicator:checked {
+                background-color: #28a745;
+                border-color: #28a745;
+            }
+            QProgressBar {
+                border: 1px solid #28a745;
+                border-radius: 8px;
+                text-align: center;
+                color: #d4edda;
+                height: 20px;
+            }
+            QProgressBar::chunk {
+                background-color: #28a745;
+                border-radius: 8px;
+            }
+            QStatusBar {
+                background-color: #1a2e20;
+                color: #d4edda;
+                border-top: 1px solid #28a745;
+                padding: 5px;
+            }
+        """
+    
+    def on_theme_changed(self):
+        """Handle theme selection change"""
+        current_data = self.theme_combo.currentData()
+        if current_data:
+            self.current_theme = current_data
+            self.apply_enhanced_theme(current_data)
+            theme_name = self.theme_combo.currentText()
+            self.add_conversation_message("system", f"🎨 Theme changed to: {theme_name}")
     
     # Event handlers
     def add_conversation_message(self, role: str, content: str, has_audio: bool = False, 
@@ -1635,7 +2094,6 @@ class ConversationalMurfAI(QMainWindow):
 
     def _sync_speak_text(self, text: str):
         """DEPRECATED - replaced by proper thread management"""
-        # This method is no longer used but kept for compatibility
         pass
     
     def speak_last_message(self):
