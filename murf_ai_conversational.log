@@ -243,3 +243,65 @@
 2025-07-26 21:21:16,921 - INFO - HTTP Request: POST https://api.murf.ai/v1/speech/generate?origin=python_sdk_2.0.1 "HTTP/1.1 200 OK"
 2025-07-26 21:21:16,923 - INFO - 📥 Downloading audio from: https://murf.ai/user-upload/one-day-temp/3ec02dd3-9131-4a9c-9885-5c2bf55fc4ef.wav?response-cache-control=max-age%3D604801&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Date=20250726T000000Z&X-Amz-SignedHeaders=host&X-Amz-Expires=259200&X-Amz-Credential=AKIA27M5532DYKBCJICE%2F20250726%2Fus-east-2%2Fs3%2Faws4_request&X-Amz-Signature=ca4cb2f390ad15c19773aac4a8d1c21d8b4f7d8a8d397d58f1bbb8c1fd281cea
 2025-07-26 21:21:18,425 - INFO - ✅ Successfully generated and downloaded speech with Murf API
+2025-07-27 13:03:47,838 - WARNING - ⚠️ Automation initialization failed: Can't connect to display ":0": b'Authorization required, but no authorization protocol specified\n'
+2025-07-27 13:03:47,838 - INFO - 💡 App will work without system automation features
+2025-07-27 13:03:47,951 - INFO - ✅ Murf client initialized successfully with voice caching enabled
+2025-07-27 13:03:47,951 - INFO - ✅ Loaded 19 voices including 6 Hindi voices and 2 Indian English voices (all confirmed working)
+2025-07-27 13:03:47,965 - INFO - ✅ Audio player initialized with pygame
+2025-07-27 13:03:48,010 - INFO - 🎨 Applied dark theme
+2025-07-27 13:03:48,020 - INFO - 🚀 MurfAI Conversational Assistant started!
+2025-07-27 13:04:04,995 - INFO - 🎵 Generating speech with voice en-IN-aarav: 'Hello! This is a test of the Aarav voice. How do I...'
+2025-07-27 13:04:07,558 - INFO - HTTP Request: POST https://api.murf.ai/v1/speech/generate?origin=python_sdk_2.0.1 "HTTP/1.1 200 OK"
+2025-07-27 13:04:07,559 - INFO - 📥 Downloading audio from: https://murf.ai/user-upload/one-day-temp/815f26ef-f5ab-4aad-bb04-f2db2f63dbf6.wav?response-cache-control=max-age%3D604801&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Date=20250727T000000Z&X-Amz-SignedHeaders=host&X-Amz-Expires=259200&X-Amz-Credential=AKIA27M5532DYKBCJICE%2F20250727%2Fus-east-2%2Fs3%2Faws4_request&X-Amz-Signature=76b3d83881c77449aacf75da5cb73168da1cb9934113eebae16b5083c99dcef3
+2025-07-27 13:04:09,296 - INFO - ✅ Successfully generated and downloaded speech with Murf API
+2025-07-27 13:04:09,296 - INFO - 💾 Cached audio for key: a2d10eaf...
+2025-07-27 13:04:27,626 - INFO - HTTP Request: POST https://models.inference.ai.azure.com/chat/completions "HTTP/1.1 200 OK"
+2025-07-27 13:04:27,633 - INFO - 🎵 Generating speech with voice hi-IN-rahul: 'Namaste! Kaise ho? Aapka din kaisa guzar raha hai?...'
+2025-07-27 13:04:30,185 - INFO - HTTP Request: POST https://api.murf.ai/v1/speech/generate?origin=python_sdk_2.0.1 "HTTP/1.1 200 OK"
+2025-07-27 13:04:30,188 - INFO - 📥 Downloading audio from: https://murf.ai/user-upload/one-day-temp/be69d102-d78f-441f-a3c3-2503ac8daeb5.wav?response-cache-control=max-age%3D604801&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Date=20250727T000000Z&X-Amz-SignedHeaders=host&X-Amz-Expires=259200&X-Amz-Credential=AKIA27M5532DYKBCJICE%2F20250727%2Fus-east-2%2Fs3%2Faws4_request&X-Amz-Signature=77a8a50f36e6627a8d6fa78b368a8111f1292e85b8cb53dc0ce31a1d2d9ea26f
+2025-07-27 13:04:31,753 - INFO - ✅ Successfully generated and downloaded speech with Murf API
+2025-07-27 13:04:31,753 - INFO - 💾 Cached audio for key: ab608f33...
+2025-07-27 13:04:56,501 - INFO - HTTP Request: POST https://models.inference.ai.azure.com/chat/completions "HTTP/1.1 200 OK"
+2025-07-27 13:04:56,508 - INFO - 🎵 Generating speech with voice hi-IN-kabir: 'I'm doing great! Aap kaise ho? Kya main aapki kisi...'
+2025-07-27 13:04:59,062 - INFO - HTTP Request: POST https://api.murf.ai/v1/speech/generate?origin=python_sdk_2.0.1 "HTTP/1.1 200 OK"
+2025-07-27 13:04:59,063 - INFO - 📥 Downloading audio from: https://murf.ai/user-upload/one-day-temp/efb3179d-cf47-4e1e-aee4-15d9fa37d916.wav?response-cache-control=max-age%3D604801&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Date=20250727T000000Z&X-Amz-SignedHeaders=host&X-Amz-Expires=259200&X-Amz-Credential=AKIA27M5532DYKBCJICE%2F20250727%2Fus-east-2%2Fs3%2Faws4_request&X-Amz-Signature=26af11884939c850d21da84a8f92febb343f4c5b2bb4fdff6c1a548e82e52756
+2025-07-27 13:05:01,117 - INFO - ✅ Successfully generated and downloaded speech with Murf API
+2025-07-27 13:05:01,117 - INFO - 💾 Cached audio for key: 3a444d8e...
+2025-07-27 13:05:16,091 - INFO - HTTP Request: POST https://models.inference.ai.azure.com/chat/completions "HTTP/1.1 200 OK"
+2025-07-27 13:05:16,095 - INFO - 🎵 Generating speech with voice hi-IN-shaan: 'Theek hai, koi baat nahi! Agar aapko kabhi bhi mad...'
+2025-07-27 13:05:18,518 - INFO - HTTP Request: POST https://api.murf.ai/v1/speech/generate?origin=python_sdk_2.0.1 "HTTP/1.1 200 OK"
+2025-07-27 13:05:18,521 - INFO - 📥 Downloading audio from: https://murf.ai/user-upload/one-day-temp/25c32850-4d71-465e-94c8-81e835b885f0.wav?response-cache-control=max-age%3D604801&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Date=20250727T000000Z&X-Amz-SignedHeaders=host&X-Amz-Expires=259200&X-Amz-Credential=AKIA27M5532DYKBCJICE%2F20250727%2Fus-east-2%2Fs3%2Faws4_request&X-Amz-Signature=29ab124aa6a7b6cc371a5e450d613aed2e56d367221b39670f3797c805476d4e
+2025-07-27 13:05:20,174 - INFO - ✅ Successfully generated and downloaded speech with Murf API
+2025-07-27 13:05:20,175 - INFO - 💾 Cached audio for key: e5811cfe...
+2025-07-27 13:05:43,400 - INFO - HTTP Request: POST https://models.inference.ai.azure.com/chat/completions "HTTP/1.1 200 OK"
+2025-07-27 13:05:43,404 - INFO - 🎵 Generating speech with voice hi-IN-shaan: 'Sure! Aapko MI ke baare mein kya jaanana hai? Kya ...'
+2025-07-27 13:05:45,859 - INFO - HTTP Request: POST https://api.murf.ai/v1/speech/generate?origin=python_sdk_2.0.1 "HTTP/1.1 200 OK"
+2025-07-27 13:05:45,862 - INFO - 📥 Downloading audio from: https://murf.ai/user-upload/one-day-temp/7ee0a858-892b-4008-973a-9009965ccb65.wav?response-cache-control=max-age%3D604801&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Date=20250727T000000Z&X-Amz-SignedHeaders=host&X-Amz-Expires=259200&X-Amz-Credential=AKIA27M5532DYKBCJICE%2F20250727%2Fus-east-2%2Fs3%2Faws4_request&X-Amz-Signature=daa4e7d650d9419edccf4068bae4fd7e2686aab0b686838294e7e7062ee21950
+2025-07-27 13:05:47,401 - INFO - ✅ Successfully generated and downloaded speech with Murf API
+2025-07-27 13:05:47,402 - INFO - 💾 Cached audio for key: 10781c67...
+2025-07-27 13:06:25,523 - INFO - 🎯 Using cached audio for key: 10781c67...
+2025-07-27 13:07:10,446 - INFO - HTTP Request: POST https://models.inference.ai.azure.com/chat/completions "HTTP/1.1 200 OK"
+2025-07-27 13:07:10,449 - INFO - 🎵 Generating speech with voice en-IN-priya: 'Got it! I’ll respond in English. How can I assist ...'
+2025-07-27 13:07:12,797 - INFO - HTTP Request: POST https://api.murf.ai/v1/speech/generate?origin=python_sdk_2.0.1 "HTTP/1.1 200 OK"
+2025-07-27 13:07:12,798 - INFO - 📥 Downloading audio from: https://murf.ai/user-upload/one-day-temp/6e7c63de-e7e9-4df4-9d3e-6db999cd1200.wav?response-cache-control=max-age%3D604801&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Date=20250727T000000Z&X-Amz-SignedHeaders=host&X-Amz-Expires=259200&X-Amz-Credential=AKIA27M5532DYKBCJICE%2F20250727%2Fus-east-2%2Fs3%2Faws4_request&X-Amz-Signature=6f67a58fde4631c2a4725399a10053142bd99c332cab474a6798454eb4d6e511
+2025-07-27 13:07:14,435 - INFO - ✅ Successfully generated and downloaded speech with Murf API
+2025-07-27 13:07:14,435 - INFO - 💾 Cached audio for key: 92f17db2...
+2025-07-27 13:07:33,788 - INFO - HTTP Request: POST https://models.inference.ai.azure.com/chat/completions "HTTP/1.1 200 OK"
+2025-07-27 13:07:33,791 - INFO - 🎵 Generating speech with voice en-IN-priya: 'I'm doing well, thank you! How about you? Anything...'
+2025-07-27 13:07:36,143 - INFO - HTTP Request: POST https://api.murf.ai/v1/speech/generate?origin=python_sdk_2.0.1 "HTTP/1.1 200 OK"
+2025-07-27 13:07:36,145 - INFO - 📥 Downloading audio from: https://murf.ai/user-upload/one-day-temp/a5f894a0-3a8c-4de8-ad92-e1b5499343db.wav?response-cache-control=max-age%3D604801&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Date=20250727T000000Z&X-Amz-SignedHeaders=host&X-Amz-Expires=259200&X-Amz-Credential=AKIA27M5532DYKBCJICE%2F20250727%2Fus-east-2%2Fs3%2Faws4_request&X-Amz-Signature=b688995ab7fe6ef7866fa32f637994fafc7046c0668f752dd22415154e33fb00
+2025-07-27 13:07:38,130 - INFO - ✅ Successfully generated and downloaded speech with Murf API
+2025-07-27 13:07:38,131 - INFO - 💾 Cached audio for key: 6fff7293...
+2025-07-27 13:08:05,429 - INFO - HTTP Request: POST https://models.inference.ai.azure.com/chat/completions "HTTP/1.1 200 OK"
+2025-07-27 13:08:05,433 - INFO - 🎵 Generating speech with voice en-IN-priya: 'I'm doing great! Thank you for asking. How can I h...'
+2025-07-27 13:08:07,887 - INFO - HTTP Request: POST https://api.murf.ai/v1/speech/generate?origin=python_sdk_2.0.1 "HTTP/1.1 200 OK"
+2025-07-27 13:08:07,890 - INFO - 📥 Downloading audio from: https://murf.ai/user-upload/one-day-temp/f5f74d8b-4750-4417-863d-0b616a074ab3.wav?response-cache-control=max-age%3D604801&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Date=20250727T000000Z&X-Amz-SignedHeaders=host&X-Amz-Expires=259200&X-Amz-Credential=AKIA27M5532DYKBCJICE%2F20250727%2Fus-east-2%2Fs3%2Faws4_request&X-Amz-Signature=87ede9673f4038c3045bc205cb1996c466937adedf78dc419dfc6b27ab0161e6
+2025-07-27 13:08:09,526 - INFO - ✅ Successfully generated and downloaded speech with Murf API
+2025-07-27 13:08:09,526 - INFO - 💾 Cached audio for key: 6e686d1f...
+2025-07-27 13:08:25,193 - INFO - HTTP Request: POST https://models.inference.ai.azure.com/chat/completions "HTTP/1.1 200 OK"
+2025-07-27 13:08:25,197 - INFO - 🎵 Generating speech with voice hi-IN-shweta: 'Main bilkul theek hoon! Aap kaise hain? Kya aapko ...'
+2025-07-27 13:08:27,651 - INFO - HTTP Request: POST https://api.murf.ai/v1/speech/generate?origin=python_sdk_2.0.1 "HTTP/1.1 200 OK"
+2025-07-27 13:08:27,652 - INFO - 📥 Downloading audio from: https://murf.ai/user-upload/one-day-temp/d58a881e-2f7a-4430-ad8d-2ab822e8142f.wav?response-cache-control=max-age%3D604801&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Date=20250727T000000Z&X-Amz-SignedHeaders=host&X-Amz-Expires=259200&X-Amz-Credential=AKIA27M5532DYKBCJICE%2F20250727%2Fus-east-2%2Fs3%2Faws4_request&X-Amz-Signature=41edf068825d996f478494de609ef496f568c2136e795169cf3eb0e78762bdab
+2025-07-27 13:08:29,305 - INFO - ✅ Successfully generated and downloaded speech with Murf API
+2025-07-27 13:08:29,305 - INFO - 💾 Cached audio for key: ca4afc20...
+2025-07-27 13:09:08,150 - INFO - ✅ All threads stopped safely
