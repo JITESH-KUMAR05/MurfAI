@@ -305,3 +305,52 @@
 2025-07-27 13:08:29,305 - INFO - ✅ Successfully generated and downloaded speech with Murf API
 2025-07-27 13:08:29,305 - INFO - 💾 Cached audio for key: ca4afc20...
 2025-07-27 13:09:08,150 - INFO - ✅ All threads stopped safely
+2025-07-27 13:20:03,798 - WARNING - ⚠️ Automation initialization failed: Can't connect to display ":0": b'Authorization required, but no authorization protocol specified\n'
+2025-07-27 13:20:03,799 - INFO - 💡 App will work without system automation features
+2025-07-27 13:20:03,913 - INFO - ✅ Murf client initialized successfully with voice caching enabled
+2025-07-27 13:20:03,913 - INFO - ✅ Loaded 19 voices including 6 Hindi voices and 2 Indian English voices (all confirmed working)
+2025-07-27 13:20:03,945 - INFO - ✅ Audio player initialized with pygame
+2025-07-27 13:20:03,984 - INFO - 🎨 Applied dark theme
+2025-07-27 13:20:03,991 - INFO - 🚀 MurfAI Conversational Assistant started!
+2025-07-27 13:20:13,841 - INFO - HTTP Request: POST https://models.inference.ai.azure.com/chat/completions "HTTP/1.1 200 OK"
+2025-07-27 13:20:13,847 - INFO - 🎵 Generating speech with voice hi-IN-amit: 'Mere paas advanced AI capabilities hain jo mujhe a...'
+2025-07-27 13:20:16,812 - INFO - HTTP Request: POST https://api.murf.ai/v1/speech/generate?origin=python_sdk_2.0.1 "HTTP/1.1 200 OK"
+2025-07-27 13:20:16,818 - INFO - 📥 Downloading audio from: https://murf.ai/user-upload/one-day-temp/45921b2c-c0ee-4f2d-b619-88f29f276b48.wav?response-cache-control=max-age%3D604801&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Date=20250727T000000Z&X-Amz-SignedHeaders=host&X-Amz-Expires=259200&X-Amz-Credential=AKIA27M5532DYKBCJICE%2F20250727%2Fus-east-2%2Fs3%2Faws4_request&X-Amz-Signature=b0f50eb1c9a383e42fa67adaee563c1df5916d3e9b61b40bade4980bc44f71b1
+2025-07-27 13:20:18,895 - INFO - ✅ Successfully generated and downloaded speech with Murf API
+2025-07-27 13:20:18,896 - INFO - 💾 Cached audio for key: 14f88f4c...
+2025-07-27 13:21:02,482 - INFO - HTTP Request: POST https://models.inference.ai.azure.com/chat/completions "HTTP/1.1 200 OK"
+2025-07-27 13:21:02,490 - INFO - 🎵 Generating speech with voice hi-IN-rahul: 'Aapko Chrome kholna hai? Kya main ise khol doon?...'
+2025-07-27 13:21:04,787 - INFO - HTTP Request: POST https://api.murf.ai/v1/speech/generate?origin=python_sdk_2.0.1 "HTTP/1.1 200 OK"
+2025-07-27 13:21:04,788 - INFO - 📥 Downloading audio from: https://murf.ai/user-upload/one-day-temp/89e16052-dcbd-4573-acdc-3d3b8793035b.wav?response-cache-control=max-age%3D604801&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Date=20250727T000000Z&X-Amz-SignedHeaders=host&X-Amz-Expires=259200&X-Amz-Credential=AKIA27M5532DYKBCJICE%2F20250727%2Fus-east-2%2Fs3%2Faws4_request&X-Amz-Signature=a545bba685451845655a2646e58c421eb3e0f2bf630a85dcb48dbde52fcdac2e
+2025-07-27 13:21:06,285 - INFO - ✅ Successfully generated and downloaded speech with Murf API
+2025-07-27 13:21:06,285 - INFO - 💾 Cached audio for key: 5b319f5f...
+2025-07-27 13:21:12,784 - INFO - HTTP Request: POST https://models.inference.ai.azure.com/chat/completions "HTTP/1.1 200 OK"
+2025-07-27 13:21:12,785 - INFO - 🎯 Action detected: {'intent': 'open_app', 'app': 'chrome'}
+2025-07-27 13:21:12,989 - INFO - 🎵 Generating speech with voice hi-IN-shweta: 'ACTION_JSON: {"intent": "open_app", "app": "chrome...'
+2025-07-27 13:21:15,367 - INFO - HTTP Request: POST https://api.murf.ai/v1/speech/generate?origin=python_sdk_2.0.1 "HTTP/1.1 200 OK"
+2025-07-27 13:21:15,370 - INFO - 📥 Downloading audio from: https://murf.ai/user-upload/one-day-temp/cc67d133-322b-4099-9df3-3fb9bd44da1c.wav?response-cache-control=max-age%3D604801&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Date=20250727T000000Z&X-Amz-SignedHeaders=host&X-Amz-Expires=259200&X-Amz-Credential=AKIA27M5532DYKBCJICE%2F20250727%2Fus-east-2%2Fs3%2Faws4_request&X-Amz-Signature=1a0c36915718aac0f940359e594c819e11e208dbfe1c6ef296f050907e315020
+2025-07-27 13:21:17,039 - INFO - ✅ Successfully generated and downloaded speech with Murf API
+2025-07-27 13:21:17,040 - INFO - 💾 Cached audio for key: b6de1b2b...
+2025-07-27 13:22:18,872 - INFO - HTTP Request: POST https://models.inference.ai.azure.com/chat/completions "HTTP/1.1 200 OK"
+2025-07-27 13:22:18,872 - INFO - 🎯 Action detected: {'intent': 'open_app', 'app': 'notepad'}
+2025-07-27 13:22:18,882 - INFO - 🎵 Generating speech with voice hi-IN-shweta: 'ACTION_JSON: {"intent": "open_app", "app": "notepa...'
+2025-07-27 13:22:21,944 - INFO - HTTP Request: POST https://api.murf.ai/v1/speech/generate?origin=python_sdk_2.0.1 "HTTP/1.1 200 OK"
+2025-07-27 13:22:21,947 - INFO - 📥 Downloading audio from: https://murf.ai/user-upload/one-day-temp/79d242ee-676e-488b-b977-0fdf84fcf89b.wav?response-cache-control=max-age%3D604801&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Date=20250727T000000Z&X-Amz-SignedHeaders=host&X-Amz-Expires=259200&X-Amz-Credential=AKIA27M5532DYKBCJICE%2F20250727%2Fus-east-2%2Fs3%2Faws4_request&X-Amz-Signature=bf7c8451255ebcbbd882c409e9d1d318daea528e592a9f2b195444fcdb4704f2
+2025-07-27 13:22:23,788 - INFO - ✅ Successfully generated and downloaded speech with Murf API
+2025-07-27 13:22:23,789 - INFO - 💾 Cached audio for key: 5a825504...
+2025-07-27 13:23:01,765 - INFO - ✅ All threads stopped safely
+2025-07-27 13:24:34,395 - WARNING - ⚠️ Automation initialization failed: Can't connect to display ":0": b'Authorization required, but no authorization protocol specified\n'
+2025-07-27 13:24:34,395 - INFO - 💡 App will work without system automation features
+2025-07-27 13:24:34,482 - INFO - ✅ Murf client initialized successfully with voice caching enabled
+2025-07-27 13:24:34,482 - INFO - ✅ Loaded 19 voices including 6 Hindi voices and 2 Indian English voices (all confirmed working)
+2025-07-27 13:24:34,506 - INFO - ✅ Audio player initialized with pygame
+2025-07-27 13:24:34,549 - INFO - 🎨 Applied dark theme
+2025-07-27 13:24:34,556 - INFO - 🚀 MurfAI Conversational Assistant started!
+2025-07-27 13:24:45,101 - INFO - HTTP Request: POST https://models.inference.ai.azure.com/chat/completions "HTTP/1.1 200 OK"
+2025-07-27 13:24:45,102 - INFO - 🎯 Action detected: {'intent': 'open_app', 'app': 'gmail'}
+2025-07-27 13:24:45,244 - INFO - 🎵 Generating speech with voice hi-IN-shweta: 'ACTION_JSON: {"intent": "open_app", "app": "gmail"...'
+2025-07-27 13:24:47,743 - INFO - HTTP Request: POST https://api.murf.ai/v1/speech/generate?origin=python_sdk_2.0.1 "HTTP/1.1 200 OK"
+2025-07-27 13:24:47,747 - INFO - 📥 Downloading audio from: https://murf.ai/user-upload/one-day-temp/83669c56-a00e-43aa-995c-95708db87a52.wav?response-cache-control=max-age%3D604801&X-Amz-Algorithm=AWS4-HMAC-SHA256&X-Amz-Date=20250727T000000Z&X-Amz-SignedHeaders=host&X-Amz-Expires=259200&X-Amz-Credential=AKIA27M5532DYKBCJICE%2F20250727%2Fus-east-2%2Fs3%2Faws4_request&X-Amz-Signature=042a3e79424e6ec23c8e16f5495b07925d765d2c5119d780cf3d01e6cc3272ad
+2025-07-27 13:24:49,555 - INFO - ✅ Successfully generated and downloaded speech with Murf API
+2025-07-27 13:24:49,556 - INFO - 💾 Cached audio for key: 75710337...
+2025-07-27 13:25:24,679 - INFO - ✅ All threads stopped safely

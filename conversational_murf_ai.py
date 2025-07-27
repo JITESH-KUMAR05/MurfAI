@@ -1057,9 +1057,9 @@ class ConversationalMurfAI(QMainWindow):
         
         # Application state
         self.conversation_messages: List[ConversationMessage] = []
-        self.current_voice = "en-IN-priya"  # Default to confirmed working Indian voice
+        self.current_voice = "en-IN-priya"  # Default 
         self.auto_speak = True
-        self.auto_voice_switch = True  # New option to control automatic voice switching
+        self.auto_voice_switch = True  # by default
         self.conversation_count = 0
         
         # Theme system
