@@ -1,4 +1,4 @@
-# Go To Buddy - Project Video Explanation Guide
+# Go To Buddy 
 
 ## 🎯 Project Overview
 
