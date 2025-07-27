@@ -1,6 +1,6 @@
 # Go To Buddy - Project Video Explanation Guide
 
-## 🎯 Project Overview (For Video Introduction)
+## 🎯 Project Overview
 
 **Go To Buddy** is an advanced AI-powered desktop assistant that combines cutting-edge voice synthesis, conversational AI, and system automation into one cohesive application. 
 
@@ -244,7 +244,7 @@ Smart Capabilities:
 ```
 
 ---
-
+<!-- 
 ## 🎬 Video Recording Script
 
 ### Opening (30 seconds):
@@ -290,4 +290,4 @@ Smart Capabilities:
 - Multi-threaded architecture
 - Modular design patterns
 
-This guide should help you create a compelling video that showcases both the technical depth and practical utility of Go To Buddy!
+This guide should help you create a compelling video that showcases both the technical depth and practical utility of Go To Buddy! -->
